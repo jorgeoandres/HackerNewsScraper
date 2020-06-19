@@ -28,17 +28,29 @@ class HackerNewsScraper:
     size = len(columns_ranks)
     for index in range(0,size):
       entry = SingleEntry()
-      entry.rank = columns_ranks[index].find('span', attrs={'class':'rank'}).text
-      entry.title = columns_titles[index].find('a', attrs={'class':'storylink'}).text
+      entry.rank = self.get_text(columns_ranks[index].find('span', attrs={'class':'rank'}))
+      entry.title = self.get_text(columns_titles[index].find('a', attrs={'class':'storylink'}))
       entry.num_words = len(entry.title.split())
-      entry.points =  self.sanitize_points(columns_metrics[index].find('span', attrs={'class':'score'}).text)
-      entry.comments =  self.sanitize_comments(columns_metrics[index].select("a[href*=item]")[1].text)
+      entry.points =  self.sanitize_points(self.get_text(columns_metrics[index].find('span', attrs={'class':'score'})))
+      entry.comments =  self.sanitize_comments(self.look_for_metrics(columns_metrics[index].select("a[href*=item]")))
       self.news.append(entry)
+
+  def get_text(self,soup_object):
+    if soup_object is None:
+      return "NULL"
+    else:
+      return soup_object.text
 
   def sanitize_points(self,text):
     return self.convert_to_int("point",text.replace(" points",""))
   def sanitize_comments(self,text):
     return self.convert_to_int("comment",text.replace("\xa0comment","").replace("s",""))
+
+  def look_for_metrics(self, metrics):
+    if len(metrics) > 1:
+      return self.get_text(metrics[1])
+    else:
+      return ""
 
   def convert_to_int(self, type_text, text):
     try:
