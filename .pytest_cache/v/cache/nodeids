@@ -1,0 +1,6 @@
+[
+  "Scraper/test_scraper.py::test_more_than_five_words",
+  "Scraper/test_scraper.py::test_less_than_five_words",
+  "Scraper/test_scraper.py::test_comments_order",
+  "Scraper/test_scraper.py::test_points_order"
+]

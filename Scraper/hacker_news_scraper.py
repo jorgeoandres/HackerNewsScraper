@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup, SoupStrainer
 class HackerNewsScraper:
   MAX_ENTRIES = 30
 
-  def __init__(self):
-    self.URL = 'https://news.ycombinator.com/'
+  def __init__(self, url = 'https://news.ycombinator.com/'):
+    self.URL = url
     self.content = ""
     self.news = []
 
@@ -101,4 +101,3 @@ class HackerNewsScraper:
       return dataframe[dataframe["num_words"] > limit_of_words].sort_values(ordered_by, ascending = ascending)
     else:
       return dataframe[dataframe["num_words"] <= limit_of_words].sort_values(ordered_by, ascending = ascending)
-
