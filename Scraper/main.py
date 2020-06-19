@@ -1,6 +1,6 @@
 from hacker_news_scraper import HackerNewsScraper
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     scraper = HackerNewsScraper()
     success = scraper.scrape()
     
