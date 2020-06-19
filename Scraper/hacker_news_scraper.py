@@ -5,6 +5,8 @@ from single_entry import SingleEntry
 from bs4 import BeautifulSoup, SoupStrainer
 
 class HackerNewsScraper:
+  MAX_ENTRIES = 30
+
   def __init__(self):
     self.URL = 'https://news.ycombinator.com/'
     self.content = ""
@@ -25,6 +27,7 @@ class HackerNewsScraper:
      return columns_metrics
 
   def get_content_of_columns(self, columns_ranks, columns_titles, columns_metrics):
+    entries = []
     size = len(columns_ranks)
     for index in range(0,size):
       entry = SingleEntry()
@@ -33,7 +36,9 @@ class HackerNewsScraper:
       entry.num_words = len(entry.title.split())
       entry.points =  self.sanitize_points(self.get_text(columns_metrics[index].find('span', attrs={'class':'score'})))
       entry.comments =  self.sanitize_comments(self.look_for_metrics(columns_metrics[index].select("a[href*=item]")))
-      self.news.append(entry)
+      entries.append(entry)
+
+    return entries
 
   def get_text(self,soup_object):
     if soup_object is None:
@@ -68,15 +73,32 @@ class HackerNewsScraper:
     columns_ranks, columns_titles = self.get_columns_titles_and_ranks(td_objects)
     columns_metrics = self.get_columns_metrics_and_comments(td_objects)
     
-    self.get_content_of_columns(columns_ranks,columns_titles, columns_metrics)
+    self.news = self.get_content_of_columns(columns_ranks,columns_titles, columns_metrics)
+    if len(self.news) == self.MAX_ENTRIES:
+      return 1
+    else:
+      return 0
+
     #print(self.news[["title","num_words"]])
 
-  # def filter_news(self, comparison_type, number_of_words, ordered_by):
-  #   if comparison_type == 1:
-  #     return self.news[self.news["num_words"] > number_of_words]
-  #   else:
-  #     return self.news["num_words"] <= number_of_words.sort_values(by=[ordered_by], inplace=True)
+  def to_dataframe(self):
+    return pd.DataFrame([entry.__str__() for entry in self.news])
 
-scraper = HackerNewsScraper()
-scraper.scrape()
-print(scraper.news)
+  def filter_news(self, comparison_type = 1, limit_of_words = 5 , ordered_by = "comments", ascending = False):
+    dataframe =  self.to_dataframe()
+    
+    if comparison_type not in [0,1]:
+      raise Exception("Sorry, you can only filter the limit of words: 1 = more than, 0 = less than or equal.")
+    if not isinstance(limit_of_words, int):
+      raise Exception("Sorry, limit_of_words can only be integer.")
+    if ordered_by not in dataframe.columns:
+      raise Exception("Sorry, you can only order the filtered table by "+dataframe.columns)
+    if not isinstance(ascending, bool):
+      raise Exception("Sorry, ascending can only be boolean.")
+    
+
+    if comparison_type == 0:
+      return dataframe[dataframe["num_words"] > limit_of_words].sort_values(ordered_by, ascending = ascending)
+    else:
+      return dataframe[dataframe["num_words"] <= limit_of_words].sort_values(ordered_by, ascending = ascending)
+
