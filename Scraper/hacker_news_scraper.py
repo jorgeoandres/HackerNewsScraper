@@ -62,6 +62,7 @@ class HackerNewsScraper:
       number = int(text)
     except Exception as err:
       number = -1
+      print(err.__str__())
       print(str(type_text)+" "+str(text)+' does not contain anything convertible to int, the '+str(type_text)+' will be -1')
 
     return number
@@ -78,8 +79,6 @@ class HackerNewsScraper:
       return 1
     else:
       return 0
-
-    #print(self.news[["title","num_words"]])
 
   def to_dataframe(self):
     return pd.DataFrame([entry.__str__() for entry in self.news])
