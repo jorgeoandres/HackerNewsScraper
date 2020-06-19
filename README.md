@@ -8,6 +8,8 @@ It uses the web page: https://news.ycombinator.com to scrap information about th
 <li>Comments</li>
 </ul>
 
+The Scraper considers the problems that can be present in the page entries. When the news are updated, there are some posts that do not have comments or points. The scraper assigns a value of -1 to the corresponding field of those entries.
+
 ## Requirements
 Some libraries are required to use the Scraper:
 <ul>
